@@ -1,86 +1,57 @@
-#rysuje B-splajn dla n podanch przez użztkownika punktow
-
-import matplotlib.pyplot as plt
 import numpy as np
-
-def wspolczynnik(macierzY, h):
-    n = macierzY.shape[0]
-    macierzB = np.zeros([n,n])
-    macierzB[0][0] = - 3.0/h
-    macierzB[0][2] = 3.0/h
-
-    macierzB[n-1][n-1] = 3.0/h 
-    macierzB[n-1][n-3] = -3.0/h
-    
-    for i in range(1,n-1):
-        macierzB[i][i] = 4.0
-        macierzB[i][i-1] = 1.0
-        macierzB[i][i+1] = 1.0
-
-    return macierzB
-
-
-def B(z,h):
-    if z >= -2*h and z <= -h:
-        return 1.0/h**3*(z+2*h)**3
-    elif z >= -h and z <= 0:
-        return 1.0/h**3*(h**3 + 3*h**2*(z+h) + 3*h*(z+h)**2 - 3*(z+h)**3)
-    elif z >= 0 and z <= h:
-        return 1.0/h**3*(h**3 + 3*h**2*(h-z) + 3*h*(h-z)**2 - 3*(h-z)**3)
-    elif z >= h and z <= 2*h:
-        return 1.0/h**3*(2*h - z)**3
-    else:
-        return 0
-
-
-def wyznacz_wartosc(macierzK, x2,  h, x):
-    n = x2.shape[0] 
-    sum = 0
-
-    for i in range(n):
-        z = x - x2[i]
-        sum += macierzK[i] * B(z=z, h=h)
-    return sum
+import matplotlib.pyplot as plt
 
 def f(x):
-    return 1/(1+25 * x**2)
+    return (x-1)**2 #funkcja nie jest okresowa
+
+def wsp(x,y,n):
+    a = np.zeros([n+1])
+    b = np.zeros([n])
+
+    for i in range(2*n+1):
+        a[0] += 1/np.sqrt(2)*y[i]
+
+    for k in range(1, n+1):
+        for i in range(2*n+1):
+            a[k] += np.cos(k*x[i])*y[i]
+            b[k-1] += np.sin(k*x[i])*y[i]
+
+    a = a*2/(2*n+1)
+    b = b*2/(2*n+1)
+    return a,b
+
+def suma(a,b,n,x):
+    sum = 0
+    for i in range(1,n+1):
+        sum += a[i]*np.cos(i*x) + b[i-1]*np.sin(i*x)
+    sum += a[0]/(np.sqrt(2))
+    return sum
 
 l = input("podaj liczbe punktow")
-n = int(l) # liczba punktow
 
-macierzX = np.zeros([n])
-macierzY = np.zeros([n+2])
-macierzX[0] = -1.0
-macierzX[n-1] = 1.0
+n = int(l)//2
+print('liczba n:' , n)
 
-macierzY[0] = 1.0
+m = 2*n +1
+X = np.zeros([m])
+Y = np.zeros([m])
 
-for i in range(1,n):
-    m = 2/n
-    macierzX[i] = macierzX[i-1] + m
+for i in range(m):
+    X[i] = (2*i*np.pi)/(2*n+1)
+    Y[i] = f(X[i])
 
-for i in range(1,n-2):
-    macierzY[i] = f(macierzX[i])
+a,b = wsp(X,Y,n)
 
-
-h = macierzX[1] - macierzX[0]
-
-macierzB = wspolczynnik(macierzY, h)
-macierzK = np.linalg.solve(macierzB, macierzY)
-
-x2 = np.concatenate(([macierzX[0]-h],macierzX,[macierzX[-1]+h]))
-
-xx = np.linspace(-1.0,1.0,100)
+xx = np.linspace(0, 2*np.pi, 100)
 yy = np.zeros([100])
-
 for i in range(100):
-    yy[i] = wyznacz_wartosc(macierzK, x2, h, xx[i])
+    yy[i] = suma(a,b,n,xx[i])
 
-plt.plot(xx,yy, label = "bsplajn")
-plt.scatter(macierzX,macierzY[1:-1], color = "red", label = "punkty")
-plt.title(f'B-splajn dla {n} punktow')
-plt.ylabel('y')
+plt.plot(xx,yy)
+#plt.plot(X,Y,'o')
+plt.scatter(X, Y, color= 'red', label = 'wezly')
+plt.title("Wielomian trygonometryczny")
 plt.xlabel('x')
+plt.ylabel('y')
 plt.legend()
 plt.show()
-
