@@ -45,23 +45,23 @@ def wyznacz_wartosc(macierzK, x2,  h, x):
 def f(x):
     return 1/(1+25 * x**2)
 
-n = 8 # liczba punktow
+def generate_points(n):
+    return np.linspace(-1, 1, n)
 
-macierzX = np.zeros([n])
+
+l = input("podaj liczbe punktow")
+n = int(l) # liczba punktow
+
+macierzX = generate_points(n)
 macierzY = np.zeros([n+2])
-macierzX[0] = -1.0
-macierzX[n-1] = 1.0
 
 macierzY[0] = 1.0
 macierzY[n+1] = 1.0
 
-for i in range(1,n-1):
-    m = 2/n
-    macierzX[i] = macierzX[i-1] + m
+print(macierzX)
 
 for i in range(1,n-2):
     macierzY[i] = f(macierzX[i])
-
 
 h = macierzX[1] - macierzX[0]
 
@@ -78,6 +78,7 @@ for i in range(100):
 
 plt.plot(xx,yy, label = "bsplajn")
 plt.scatter(macierzX,macierzY[1:-1], color = "red", label = "punkty")
+plt.title(f'B-splajn dla {n} punktow')
 plt.ylabel('y')
 plt.xlabel('x')
 plt.legend()
