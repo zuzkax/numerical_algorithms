@@ -1,12 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-file_path = "zad3.txt"
-data = np.loadtxt(file_path)
-X = data[:, 0]
-Y = data[:, 2]
-
 def eliminacjaGaussa(macierzA, wektorPrawy):
     n = macierzA.shape[0]
     wektorNiewiadomych = np.zeros([n])
@@ -28,7 +22,6 @@ def eliminacjaGaussa(macierzA, wektorPrawy):
         wektorNiewiadomych[i] = (wektorPrawy[i] - suma) / macierzA[i][i]
 
     return wektorNiewiadomych
-
 def wspolczynniki(m,X,Y):
     l = len(X)
     M = np.zeros([m+1, m+1])
@@ -40,10 +33,10 @@ def wspolczynniki(m,X,Y):
 
     for i in range(m+1):
         for k in range(l):
-            N[i] += Y[k] * X[k] **  i
+            N[i] += Y[k] * X[k] ** i
 
     #a = np.linalg.solve(M,N)
-    a = eliminacjaGaussa(M, N)
+    a = eliminacjaGaussa(M,N)
     return a
 
 def wielomian_aproksymujacy(x,a,m):
@@ -52,27 +45,31 @@ def wielomian_aproksymujacy(x,a,m):
         w += a[i] * x ** i
     return w
 
+data = np.loadtxt('siatka4.txt')
+X = data[:, 0]
+Y = data[:, 2]
 
-a1 = wspolczynniki(2,X,Y)
-a2 = wspolczynniki(1,X,Y)
+a = wspolczynniki(2,X,Y)
+a1 = wspolczynniki(1,X,Y)
+print(a)
+print(a1)
 
-xx = np.linspace(0.0,4.0,100)
-yy = np.zeros([100])
-yyy = np.zeros([100])
-
-for i in range(100):
-    yy[i] = wielomian_aproksymujacy(xx[i],a1, 2)
-
-for i in range(100):
-    yyy[i] = wielomian_aproksymujacy(xx[i],a2, 1)
+xx = np.linspace(min(X),max(X),10)
+yy = np.zeros([10])
+yyy = np.zeros([10])
 
 
+for i in range(10):
+    yy[i] = wielomian_aproksymujacy(xx[i],a, 2)
+#roznice sa tak male ze nie widac ich na wykresie
+print(yy)
+for i in range(10):
+    yyy[i] = wielomian_aproksymujacy(xx[i],a1, 1)
+print(yyy)
 plt.plot(xx,yy, label = 'aproksymacja st 2')
 plt.plot(xx,yyy, label = 'aproksymacja st 1')
 plt.scatter(X,Y, color = 'red', label = 'punkty')
 plt.xlabel('x')
 plt.ylabel('y')
-plt.title('Aproksymacja dla y = 0')
 plt.legend()
 plt.show()
-
