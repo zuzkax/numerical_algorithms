@@ -58,7 +58,7 @@ xx, yy = interpolacja_przedzialami(X, Y)
 
 plt.plot(xx, yy, label='Interpolacja wielomianowa')
 plt.scatter(X, Y, color='green', label='Węzły')
-plt.title("Interpolacja wielomianowa dla y = 5")
+plt.title("Interpolacja wielomianowa dla y = 0.5")
 plt.xlabel('x')
 plt.ylabel('y')
 plt.legend()
