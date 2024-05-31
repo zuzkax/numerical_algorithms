@@ -1,8 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-file_path = "139374.dat"
-data = np.loadtxt(file_path)
+data = np.loadtxt("139374.dat")
 
 x = data[:, 0]
 y = data[:, 1]
@@ -64,12 +63,13 @@ def zad2(y,f):
 
     bar_width = 0.25
     index = np.arange(len(y_const))
-    avgch = plt.bar(index, avg_list, bar_width, label='Średnia')
-    medch = plt.bar(index + bar_width, median_list, bar_width, label='Mediana')
-    stddevch = plt.bar(index + 2 * bar_width, std_dev_list, bar_width, label='Odchylenie standardowe')
+    plt.bar(index, avg_list, bar_width, label='Średnia')
+    plt.bar(index + bar_width, median_list, bar_width, label='Mediana')
+    plt.bar(index + 2 * bar_width, std_dev_list, bar_width, label='Odchylenie standardowe')
 
     plt.xlabel('y')
     plt.ylabel('F(x,y)')
+    plt.xticks(index + bar_width, [f'{i / 10:.1f}' for i in range(len(y_const))])
     plt.title('Mediana, średnia i odchylenie standardowe dla każdej wartości y')
     plt.legend()
     plt.show()
