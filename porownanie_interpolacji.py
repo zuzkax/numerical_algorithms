@@ -32,32 +32,6 @@ def interpolacja_przedzialami(X, Y, segment_size=5):
     yy = []
     wsp = []
 
-    for i in range(0, n, segment_size - 1):
-        end = i + segment_size
-        if end > n:
-            end = n
-        X_segment = X[i:end]
-        Y_segment = Y[i:end]
-        a = LagrangeCoeff(X_segment, Y_segment)
-        wsp.append(a)
-        xx_segment = np.linspace(X_segment[0], X_segment[-1], 100)
-        yy_segment = LagrangeVal(macierzWsp=a, macierzX=X_segment, x=xx_segment)
-
-        xx.extend(xx_segment)
-        yy.extend(yy_segment)
-
-        if end == n:
-            break
-    print(wsp)
-    return np.array(xx), np.array(yy)
-
-
-def interpolacja_przedzialami(X, Y, segment_size=5):
-    n = len(X)
-    xx = []
-    yy = []
-    wsp = []
-
     i = 0
     while i < n:
         end = i + segment_size
@@ -101,6 +75,7 @@ def eliminacjaGaussa(macierzA, wektorPrawy):
         wektorNiewiadomych[i] = (wektorPrawy[i] - suma) / macierzA[i][i]
 
     return wektorNiewiadomych
+    
 def BS(xx, x, h):
     if x-2*h <= xx <= x -h:
         return 1 / h**3 * (xx -(x - 2 *h))**3
@@ -112,6 +87,7 @@ def BS(xx, x, h):
         return 1/h **3 * (((x + 2 *h)-xx)**3)
     else:
         return 0
+        
 def splajny(X,Y):
     x = np.zeros(len(X)+2)
     y = np.zeros(len(Y)+2)
