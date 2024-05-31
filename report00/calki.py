@@ -38,6 +38,16 @@ def calka_s_simpson(x, y):
         c += (h / 3) * (y[i-1] + 4 * y[i] + y[i+1])
     return c
 
+def calka_l_simpson(x, y):
+    integral = 0
+    if len(x) % 2 == 0:
+        x = np.append(x, x[-1] + (x[-1] - x[-2]))
+        y = np.append(y, 0)
+    for i in range(1, len(x)-1, 2):
+        h = x[i] - x[i-1]
+        integral += (h / 3) * (y[i-1] + 4 * y[i] + y[i+1])
+    return integral
+
 def eliminacjaGaussa(macierzA, wektorPrawy):
     n = macierzA.shape[0]
     wektorNiewiadomych = np.zeros([n])
@@ -101,42 +111,64 @@ def splajny(X,Y):
         yy[i] = summ
     return xx, yy
 
+def LagrangeVal(macierzWsp, macierzX, x):
+    n = macierzWsp.shape[0]
+    y = 0
+    for i in range(n):
+        m = 1
+        for j in range(n):
+            if j != i:
+                m = m * (x - macierzX[j])
+        y = y + m * macierzWsp[i]
+    return y
+def LagrangeCoeff(X, Y):
+    n = np.size(X)
+    a = np.zeros(n)
+    for i in range(n):
+        m = 1
+        for j in range(n):
+            if j != i:
+                m = m * (X[i] - X[j])
+        a[i] = Y[i] / m
+    return a
+def interpolacja_przedzialami(X, Y, segment_size=5):
+    n = len(X)
+    xx = []
+    yy = []
+    wsp = []
+
+    i = 0
+    while i < n:
+        end = i + segment_size
+        if end > n:
+            end = n
+        X_segment = X[i:end]
+        Y_segment = Y[i:end]
+        a = LagrangeCoeff(X_segment, Y_segment)
+        wsp.append(a)
+        print(f"Współczynniki dla przedziału {i} do {end}: {a}")
+        xx_segment = np.linspace(X_segment[0], X_segment[-1], 100)
+        yy_segment = [LagrangeVal(macierzWsp=a, macierzX=X_segment, x=xi) for xi in xx_segment]
+
+        xx.extend(xx_segment)
+        yy.extend(yy_segment)
+
+        if end == n:
+            break
+        i = end - 1
+
+    return np.array(xx), np.array(yy)
 
 data = np.loadtxt('siatka5.txt')
 X = data[:, 0]
 Y = data[:, 2]
 
-calki_lag_trapezy = []
-calki_lag_sim = []
 
 wsp_ap1 = [550.06827666, -82.80063589]
 wsp_ap2 = [5.48913574e+02, -8.10241696e+01, -4.44116578e-01]
-wsp_lag= [[  198498.75    ,    -905245.     ,     1681315.     ,    -1252991.66666667,
-   278269.58333333], [  278269.58333333, -1288688.33333333 , 2245372.5  ,      -1065738.33333333,
-   235390.83333333],[  235390.83333333, -1325855. ,         1291685.       ,   -299183.33333333,
-   205062.5       ],[ 205062.5 ,       -734653.33333333 ,-252585.    ,     -266388.33333333,
-  214363.75      ], [  214363.75    ,      66373.33333333 ,  -74652.  ,       -1165156.66666667,
-   159748.33333333],[  159748.33333333  ,  18780.33333333  ,2050510.00000001 ,-1573661.66666667,
-    66810.41666667], [   66810.41666667, -1153803.33333333  ,3273000.  ,        -633210.,
-   116027.08333333], [  116027.08333333, -2073483.33333333 , 1446674.99999999   ,395671.66666667,
-   315092.5       ], [  315092.5   ,     -1250055.   ,      -1340267.5    ,     -139062.33333333,
-   375185.        ], [  375185.        ,   607755.   ,     -1132530.    ,     -1635320.,
-   115332.08333333]]
-
-calka_lag_trapezy = 0
-calka_lag_sim = 0
-
-for i in range(len(wsp_lag)):
-    calki_lag_trapezy.append(trapezy(min(X), max(X),1000,wsp_lag[i]))
-    calki_lag_sim.append(simpson(min(X), max(X),1000,wsp_lag[i]))
-    calka_lag_sim += simpson(min(X), max(X),1000,wsp_lag[i])
-    calka_lag_trapezy += trapezy(min(X), max(X),1000,wsp_lag[i])
-
-#print(calki_lag_trapezy)
-#print(calki_lag_sim)
 
 xxS, yyS = splajny(X,Y)
-
+xxL, yyL = interpolacja_przedzialami(X,Y)
 
 print("metoda trapezow dla  aproksymacji 1 stopnia: ")
 print(trapezy(min(X),max(X),1000,wsp_ap1[::-1]))
@@ -147,8 +179,8 @@ print(trapezy(min(X),max(X),1000,wsp_ap2[::-1]))
 print("metoda simpsona dla  aproksymacji 2 stopnia: ")
 print(simpson(min(X),max(X),1000,wsp_ap2[::-1]))
 print("===========================================================")
-print(f"metoda trapezow dla interpolacji Lagrangea: {calka_lag_trapezy} ")
-print(f"metoda simpsona dla interpolacji Lagrangea: {calka_lag_sim} ")
+print(f"metoda trapezow dla interpolacji Lagrangea: {calka_s_trapez(xxL,yyL)} ")
+print(f"metoda simpsona dla interpolacji Lagrangea: {calka_l_simpson(xxL,yyL)} ")
 print("===========================================================")
 print(f"metoda trapezow dla splajnu: {calka_s_trapez(xxS,yyS)}")
 print(f"metoda simpsona dla splajnu: {calka_s_simpson(xxS,yyS)}")
